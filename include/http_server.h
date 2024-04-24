@@ -11,9 +11,9 @@
     #define HTTP_PORT 8080
     #define BUFFER_SIZE (2 << 16)
 
-    #include <limits.h>
     #include <stddef.h>
     #include <sys/select.h>
+    #include "compat.h"
 
 typedef struct s_buffer {
     char buffer[BUFFER_SIZE];

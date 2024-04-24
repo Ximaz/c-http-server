@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <string.h>
+#include "compat.h"
 #include "http_server.h"
 
 static http_server_t server = { 0 };
@@ -19,7 +20,7 @@ static void handle_signal(int signal)
 }
 
 static void prepare_config(http_config_t *config,
-    const char root_path[PATH_MAX], const char index_path[PATH_MAX])
+    const char *root_path, const char *index_path)
 {
     char tmp[PATH_MAX] = { 0 };
 
@@ -28,7 +29,7 @@ static void prepare_config(http_config_t *config,
     strncpy(config->root_path, tmp, config->root_path_len);
     memset(tmp, 0, sizeof(char) * config->root_path_len);
     strncat(tmp, config->root_path, sizeof(char) * config->root_path_len);
-    strncat(tmp, "/", sizeof(char) * 1);
+    tmp[config->root_path_len] = '/';
     strncat(tmp, index_path, sizeof(char) * strlen(index_path));
     realpath(tmp, config->index_path);
     config->index_path_len = strlen(config->index_path);

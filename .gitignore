@@ -1,0 +1,10 @@
+a.out
+*.o
+*.so
+*.a
+*.gcno
+*.gcda
+*.log
+unit_tests
+http_server
+.vscode

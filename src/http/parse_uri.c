@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include "compat.h"
 #include "http_server.h"
+#include "string_utils.h"
 
 static int remote_file_inclusion(const http_config_t *config, char const *path)
 {

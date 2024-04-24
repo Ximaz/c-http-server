@@ -9,6 +9,7 @@
     #define __STRING_UTILS_H_
 
     #include <stddef.h>
+    #include "compat.h"
 
 char *strndup(char const *string, size_t length);
 
