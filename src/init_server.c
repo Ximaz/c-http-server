@@ -30,7 +30,7 @@ int init_server(http_server_t *server, const http_config_t *config)
     server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (-1 == server->socket)
         return -1;
-    if (-1 == -1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR,
+    if (-1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR,
         &reuse_sock, sizeof(int)) ||
         -1 == bind_socket(server->socket, config->host, config->port) ||
         -1 == listen(server->socket, SOMAXCONN)) {
