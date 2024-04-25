@@ -7,6 +7,7 @@
 
 #include <arpa/inet.h>
 #include <string.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include "http_server.h"
@@ -24,15 +25,20 @@ static int bind_socket(int socket, const char *host, int port)
 
 int init_server(http_server_t *server, const http_config_t *config)
 {
+    int reuse_sock = 1;
+
     server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (-1 == server->socket)
         return -1;
-    if (-1 == bind_socket(server->socket, config->host, config->port) ||
+    if (-1 == -1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR,
+        &reuse_sock, sizeof(int)) ||
+        -1 == bind_socket(server->socket, config->host, config->port) ||
         -1 == listen(server->socket, SOMAXCONN)) {
         close(server->socket);
         server->socket = -1;
         return -1;
     }
     memcpy(&(server->config), config, sizeof(http_config_t));
+    memset(server->clients, -1, sizeof(int) * FD_SETSIZE);
     return 0;
 }

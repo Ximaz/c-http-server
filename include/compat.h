@@ -8,7 +8,6 @@
 #ifndef __COMPAT_H_
     #define __COMPAT_H_
 
-
     #if !defined(__APPLE__)
         #include <linux/limits.h>
     #else

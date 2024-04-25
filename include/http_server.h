@@ -9,16 +9,13 @@
     #define __http_server_H_
 
     #define HTTP_PORT 8080
-    #define BUFFER_SIZE (2 << 16)
+    #define CLIENT_CONNECTED 1
+    #define CLIENT_DISCONNECTED -1
 
     #include <stddef.h>
     #include <sys/select.h>
+    #include "buffer.h"
     #include "compat.h"
-
-typedef struct s_buffer {
-    char buffer[BUFFER_SIZE];
-    unsigned int length;
-} buffer_t;
 
 typedef buffer_t http_request_t;
 typedef buffer_t http_response_t;
@@ -51,6 +48,8 @@ void send_response(http_server_t *server, int client);
 
 void handle_http_request(const http_config_t *config,
     const http_request_t *req, http_response_t *resp);
+
+void close_client(http_server_t *server, int client);
 
 void destroy_server(http_server_t *server);
 

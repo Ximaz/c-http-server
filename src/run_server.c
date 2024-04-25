@@ -19,11 +19,9 @@ static void accept_client(http_server_t *server)
     int client = accept(server->socket, (struct sockaddr *) &addr, &socklen);
 
     if (-1 != client) {
-        server->clients[client] = 1;
-        memset(server->requests[client].buffer, 0, sizeof(http_request_t));
-        server->requests[client].length = 0;
-        memset(server->responses[client].buffer, 0, sizeof(http_response_t));
-        server->responses[client].length = 0;
+        server->clients[client] = CLIENT_CONNECTED;
+        empty_buffer(&(server->requests[client]));
+        empty_buffer(&(server->responses[client]));
     }
 }
 
@@ -59,11 +57,13 @@ static void prepare_fd_sets(fd_set rdwr[2], const http_server_t *server)
     FD_ZERO(&(rdwr[0]));
     FD_ZERO(&(rdwr[1]));
     FD_SET(server->socket, &(rdwr[0]));
-    for (; i < FD_SETSIZE; ++i)
-        if (1 == server->clients[i]) {
-            FD_SET(i, &(rdwr[0]));
+    for (; i < FD_SETSIZE; ++i) {
+        if (CLIENT_DISCONNECTED == server->clients[i])
+            continue;
+        FD_SET(i, &(rdwr[0]));
+        if (0 < server->responses[i].length)
             FD_SET(i, &(rdwr[1]));
-        }
+    }
 }
 
 int run_server(http_server_t *server)
@@ -81,8 +81,10 @@ int run_server(http_server_t *server)
             return -1;
         }
         memset(&timeout, 0, sizeof(struct timeval));
-        recv_requests(server, &(rdwr[0]));
-        send_responses(server, &(rdwr[1]));
+        if (0 < status) {
+            recv_requests(server, &(rdwr[0]));
+            send_responses(server, &(rdwr[1]));
+        }
     }
     server->running = 0;
     return 0;

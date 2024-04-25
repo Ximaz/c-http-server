@@ -42,5 +42,7 @@ char *parse_uri(const http_config_t *config, const char *uri, int *http_status)
     *http_status = 200;
     full_path_len = strlen(tmp);
     full_path = strndup(tmp, full_path_len);
+    if (NULL == full_path)
+        *http_status = 500;
     return full_path;
 }

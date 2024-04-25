@@ -16,15 +16,8 @@ void destroy_server(http_server_t *server)
     int i = 0;
 
     for (; i < FD_SETSIZE; ++i)
-        if (1 == server->clients[i]) {
-            shutdown(i, SHUT_RDWR);
-            close(i);
-            server->clients[i] = -1;
-            memset(server->requests[i].buffer, 0, sizeof(http_request_t));
-            server->requests[i].length = 0;
-            memset(server->responses[i].buffer, 0, sizeof(http_response_t));
-            server->responses[i].length = 0;
-        }
+        if (CLIENT_CONNECTED == server->clients[i])
+            close_client(server, i);
     close(server->socket);
     server->socket = -1;
 }
