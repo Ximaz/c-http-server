@@ -42,7 +42,7 @@ static int parse_line(const char *line, http_request_t *output, int is_meta)
     header = parse_http_header(&buffer);
     if (NULL == header)
         return -1;
-    if (-1 == list_push_back(&(output->headers), (void *) header)) {
+    if (-1 == set_http_header(&(output->headers), header)) {
         free(header);
         return -1;
     }

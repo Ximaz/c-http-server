@@ -20,4 +20,5 @@ void destroy_server(http_server_t *server)
             close_client(server, i);
     close(server->socket);
     server->socket = -1;
+    router_destroy(&(server->router));
 }

@@ -7,7 +7,6 @@
 
 #include "list.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 static list_elem_t *move_to(list_elem_t *node, long range)
 {

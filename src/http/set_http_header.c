@@ -7,18 +7,27 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "hashmap.h"
 #include "http.h"
-#include "list.h"
 
-void set_http_header(http_headers_t *headers, const char *key,
+void make_http_header(http_header_t *header, const char *key,
     const char *value)
 {
-    http_header_t *header = calloc(1, sizeof(http_header_t));
+    write_lower_buffer(&(header->key), key, strlen(key));
+    write_buffer(&(header->value), value, strlen(value));
+}
 
-    if (NULL != header) {
-        write_buffer(&(header->key), key, strlen(key));
-        write_buffer(&(header->value), value, strlen(value));
-        if (-1 == list_push_back(headers, (void *) header))
-            free(header);
+int set_http_header(http_headers_t *headers, http_header_t *header)
+{
+    hashmap_item_t *item = calloc(1, sizeof(hashmap_item_t));
+
+    if (NULL == item)
+        return -1;
+    item->key = header->key.buffer;
+    item->value = header;
+    if (-1 == hashmap_insert(headers, item)) {
+        free(header);
+        return -1;
     }
+    return 0;
 }

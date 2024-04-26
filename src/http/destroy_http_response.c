@@ -8,12 +8,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "buffer.h"
+#include "hashmap.h"
 #include "http.h"
-#include "list.h"
 
 void destroy_http_response(http_response_t *resp)
 {
-    list_clear(&(resp->headers));
+    hashmap_destroy(&(resp->headers));
     empty_buffer(&(resp->content));
     empty_buffer(&(resp->raw));
 }

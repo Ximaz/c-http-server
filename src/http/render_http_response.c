@@ -5,9 +5,9 @@
 ** render_http_response.c
 */
 
-#include <stdio.h>
 #include <string.h>
 #include "buffer.h"
+#include "hashmap.h"
 #include "http.h"
 #include "list.h"
 #include "server.h"
@@ -18,6 +18,7 @@ static void write_metadata(const server_config_t *config,
     const buffer_t http_version = HTTP_VERSIONS[config->http_version];
 
     write_buffer(&(resp->raw), http_version.buffer, http_version.length);
+    write_buffer(&(resp->raw), " ", 1);
     write_buffer(&(resp->raw), HTTP_STATUS[resp->status], 3);
     write_buffer(&(resp->raw), HTTP_LINE_SEP, HTTP_LINE_SEP_LEN);
 }
@@ -30,18 +31,29 @@ static void write_header(http_response_t *resp, const http_header_t *header)
     write_buffer(&(resp->raw), HTTP_LINE_SEP, HTTP_LINE_SEP_LEN);
 }
 
-static void write_headers(http_response_t *resp)
+static void write_headers_list(http_response_t *resp,
+    const list_t *headers)
 {
     long i = 0;
-    long headers_count = list_count(&(resp->headers));
+    hashmap_item_t *item = NULL;
     http_header_t *header = NULL;
+    long headers_count = list_count(headers);
 
     for (; i < headers_count; ++i) {
-        header = list_value_at(&(resp->headers), i);
-        if (NULL == header)
+        item = list_value_at(headers, i);
+        if (NULL == item)
             continue;
+        header = item->value;
         write_header(resp, header);
     }
+}
+
+static void write_headers(http_response_t *resp)
+{
+    int i = 0;
+
+    for (; i < HASHMAP_SIZE; ++i)
+        write_headers_list(resp, &(resp->headers[i]));
 }
 
 void render_response(const server_config_t *config, http_response_t *resp)

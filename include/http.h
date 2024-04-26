@@ -14,7 +14,7 @@
 
     #include "buffer.h"
     #include "compat.h"
-    #include "list.h"
+    #include "hashmap.h"
 
 typedef enum e_http_method {
     HTTP_GET,
@@ -52,7 +52,7 @@ typedef struct s_http_header {
     buffer_t value;
 } http_header_t;
 
-typedef list_t http_headers_t; /* http_header_t[] */
+typedef hashmap_t http_headers_t; /* {header_name: header_value} */
 
 typedef enum e_http_status {
     HTTP_100,
@@ -228,12 +228,16 @@ int parse_http_version(const char *version, http_request_t *output);
 
 http_header_t *parse_http_header(const buffer_t *raw);
 
+buffer_t *get_http_header(const http_headers_t *headers, const char *key);
+
 void parse_http_request(const buffer_t *raw, http_request_t *output);
 
 void get_http_uri_resource(const char *path, http_response_t *resp);
 
-void set_http_header(http_headers_t *headers, const char *key,
+void make_http_header(http_header_t *header, const char *key,
     const char *value);
+
+int set_http_header(http_headers_t *headers, http_header_t *header);
 
 void destroy_http_request(http_request_t *req);
 

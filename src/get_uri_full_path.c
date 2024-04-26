@@ -43,9 +43,9 @@ char *get_uri_full_path(const server_config_t *config, const char *uri,
         *http_status = HTTP_404;
         return NULL;
     }
-    *http_status = HTTP_202;
+    *http_status = HTTP_200;
     full_path_len = strlen(tmp);
-    full_path = strndup(tmp, full_path_len);
+    full_path = my_strndup(tmp, full_path_len);
     if (NULL == full_path)
         *http_status = HTTP_500;
     return full_path;

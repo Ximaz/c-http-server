@@ -23,7 +23,7 @@ http_header_t *parse_http_header(const buffer_t *raw)
         header = calloc(1, sizeof(http_header_t));
         if (NULL == header)
             return NULL;
-        write_buffer(&(header->key), raw->buffer, i);
+        write_lower_buffer(&(header->key), raw->buffer, i);
         write_buffer(&(header->value), &(raw->buffer[i + 2]),
             strlen(&(raw->buffer[i + 2])));
         return header;

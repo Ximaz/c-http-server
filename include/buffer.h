@@ -15,6 +15,8 @@ typedef struct s_buffer {
     unsigned int length;
 } buffer_t;
 
+void write_lower_buffer(buffer_t *buffer, const char *string, size_t length);
+
 void write_buffer(buffer_t *buffer, const char *string, size_t length);
 
 void empty_buffer(buffer_t *buffer);

@@ -17,4 +17,5 @@ void send_response(http_server_t *server, int socket)
 
     write(socket, resp->raw.buffer, sizeof(char) * resp->raw.length);
     close_client(server, socket);
+    destroy_http_response(resp);
 }

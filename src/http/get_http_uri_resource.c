@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** {Workshop} Network Programming
 ** File description:
-** handle_http_request.c
+** get_http_uri_resource.c
 */
 
 #include <fcntl.h>

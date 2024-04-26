@@ -5,7 +5,6 @@
 ** recv_request.c
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -30,5 +29,5 @@ void recv_request(http_server_t *server, int socket)
         return;
     }
     req->raw.length = (unsigned int) bytes;
-    handle_http_request(&(server->config), req, resp);
+    handle_http_request(server, client, req, resp);
 }
