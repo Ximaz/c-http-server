@@ -14,7 +14,8 @@
 #include "server.h"
 #include "string_utils.h"
 
-static int remote_file_inclusion(const server_config_t *config, char const *path)
+static int remote_file_inclusion(const server_config_t *config,
+    char const *path)
 {
     return 0 != strncmp(path, config->root_path.buffer,
         config->root_path.length);

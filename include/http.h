@@ -10,7 +10,7 @@
 
     #define HTTP_LINE_SEP "\r\n"
     #define HTTP_LINE_SEP_LEN 2
-    #define UNUSED __attribute__((unused)) 
+    #define UNUSED __attribute__((unused))
 
     #include "buffer.h"
     #include "compat.h"
