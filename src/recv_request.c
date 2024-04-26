@@ -9,23 +9,26 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "http_server.h"
+#include "buffer.h"
+#include "http.h"
+#include "server.h"
 
-void recv_request(http_server_t *server, int client)
+void recv_request(http_server_t *server, int socket)
 {
-    http_request_t *req = &(server->requests[client]);
-    http_response_t *resp = &(server->responses[client]);
+    http_client_t *client = &(server->clients[socket]);
+    http_request_t *req = &(client->request);
+    http_response_t *resp = &(client->response);
     ssize_t bytes = -1;
 
-    empty_buffer(req);
-    empty_buffer(resp);
-    bytes = read(client, req->buffer, sizeof(char) * BUFFER_SIZE);
+    empty_buffer(&(req->raw));
+    empty_buffer(&(resp->raw));
+    bytes = read(socket, req->raw.buffer, sizeof(char) * BUFFER_SIZE);
     if (-1 == bytes)
         return;
     if (0 == bytes) {
-        close_client(server, client);
+        close_client(server, socket);
         return;
     }
-    req->length = (unsigned int) bytes;
+    req->raw.length = (unsigned int) bytes;
     handle_http_request(&(server->config), req, resp);
 }

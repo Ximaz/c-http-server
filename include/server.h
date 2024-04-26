@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** {Workshop} Network Programming
 ** File description:
-** http_server.h
+** server.h
 */
 
 #ifndef __http_server_H_
@@ -16,29 +16,31 @@
     #include <sys/select.h>
     #include "buffer.h"
     #include "compat.h"
+    #include "http.h"
 
-typedef buffer_t http_request_t;
-typedef buffer_t http_response_t;
-
+/* todo: mettre root_path et index_path en buffer_t */
 typedef struct s_http_config {
     int port;
     char const *host;
-    char root_path[PATH_MAX];
-    size_t root_path_len;
-    char index_path[PATH_MAX];
-    size_t index_path_len;
-} http_config_t;
+    buffer_t root_path;
+    buffer_t index_path;
+    http_version_t http_version;
+} server_config_t;
+
+typedef struct s_http_client {
+    http_request_t request;
+    http_response_t response;
+    int connected;
+} http_client_t;
 
 typedef struct s_http_server {
     int socket;
     int running;
-    int clients[FD_SETSIZE];
-    http_request_t requests[FD_SETSIZE];
-    http_response_t responses[FD_SETSIZE];
-    http_config_t config;
+    http_client_t clients[FD_SETSIZE];
+    server_config_t config;
 } http_server_t;
 
-int init_server(http_server_t *server, const http_config_t *config);
+int init_server(http_server_t *server, const server_config_t *config);
 
 int run_server(http_server_t *server);
 
@@ -46,16 +48,16 @@ void recv_request(http_server_t *server, int client);
 
 void send_response(http_server_t *server, int client);
 
-void handle_http_request(const http_config_t *config,
-    const http_request_t *req, http_response_t *resp);
+void handle_http_request(const server_config_t *config, http_request_t *req,
+    http_response_t *resp);
 
 void close_client(http_server_t *server, int client);
 
 void destroy_server(http_server_t *server);
 
-char *parse_uri(const http_config_t *config, const char *uri, int *status);
+char *get_uri_full_path(const server_config_t *config, const char *uri,
+    http_status_t *http_status);
 
-void build_headers(const http_config_t *config, http_response_t *resp,
-    int http_status);
+void render_response(const server_config_t *config, http_response_t *resp);
 
 #endif /* !__http_server_H_ */

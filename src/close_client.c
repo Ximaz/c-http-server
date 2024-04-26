@@ -9,16 +9,16 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include "buffer.h"
-#include "http_server.h"
+#include "http.h"
+#include "server.h"
 
-void close_client(http_server_t *server, int client)
+void close_client(http_server_t *server, int socket)
 {
-    http_request_t *req = &(server->requests[client]);
-    http_response_t *resp = &(server->responses[client]);
+    http_client_t *client = &(server->clients[socket]);
 
-    empty_buffer(req);
-    empty_buffer(resp);
-    shutdown(client, SHUT_RDWR);
-    close(client);
-    server->clients[client] = -1;
+    shutdown(socket, SHUT_RDWR);
+    close(socket);
+    client->connected = 0;
+    destroy_http_request(&(client->request));
+    destroy_http_response(&(client->response));
 }

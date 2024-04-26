@@ -10,6 +10,8 @@
 
 void write_buffer(buffer_t *buffer, const char *string, size_t length)
 {
-    strncat(buffer->buffer, string, sizeof(char) * length);
-    buffer->length += length;
+    if (BUFFER_SIZE >= (buffer->length + length)) {
+        strncat(buffer->buffer, string, sizeof(char) * length);
+        buffer->length += length;
+    }
 }

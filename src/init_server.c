@@ -6,11 +6,13 @@
 */
 
 #include <arpa/inet.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "http_server.h"
+#include "http.h"
+#include "server.h"
 
 static int bind_socket(int socket, const char *host, int port)
 {
@@ -23,22 +25,35 @@ static int bind_socket(int socket, const char *host, int port)
     return bind(socket, (const struct sockaddr *) &addr, socklen);
 }
 
-int init_server(http_server_t *server, const http_config_t *config)
+static void setup_clients(http_server_t *server)
+{
+    int i = 0;
+    http_client_t *client = NULL;
+
+    for (; i < FD_SETSIZE; ++i) {
+        client = &(server->clients[i]);
+        client->request.headers.destroy = free;
+        client->response.headers.destroy = free;
+        client->connected = 0;
+    }
+}
+
+int init_server(http_server_t *server, const server_config_t *config)
 {
     int reuse_sock = 1;
 
     server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (-1 == server->socket)
         return -1;
-    if (-1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR,
-        &reuse_sock, sizeof(int)) ||
+    if (-1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR, &reuse_sock,
+        sizeof(int)) ||
         -1 == bind_socket(server->socket, config->host, config->port) ||
         -1 == listen(server->socket, SOMAXCONN)) {
         close(server->socket);
         server->socket = -1;
         return -1;
     }
-    memcpy(&(server->config), config, sizeof(http_config_t));
-    memset(server->clients, -1, sizeof(int) * FD_SETSIZE);
+    memcpy(&(server->config), config, sizeof(server_config_t));
+    setup_clients(server);
     return 0;
 }

@@ -10,7 +10,8 @@
 #include <signal.h>
 #include <string.h>
 #include "compat.h"
-#include "http_server.h"
+#include "buffer.h"
+#include "server.h"
 
 static http_server_t server = { 0 };
 
@@ -20,26 +21,27 @@ static void handle_signal(int signal)
     server.running = 0;
 }
 
-static void prepare_config(http_config_t *config,
+static void prepare_config(server_config_t *config,
     const char *root_path, const char *index_path)
 {
     char tmp[PATH_MAX] = { 0 };
 
     realpath(root_path, tmp);
-    config->root_path_len = strlen(tmp);
-    strncpy(config->root_path, tmp, config->root_path_len);
-    memset(tmp, 0, sizeof(char) * config->root_path_len);
-    strncat(tmp, config->root_path, sizeof(char) * config->root_path_len);
-    tmp[config->root_path_len] = '/';
+    write_buffer(&(config->root_path), tmp, strlen(tmp));
+    memset(tmp, 0, sizeof(char) * config->root_path.length);
+    tmp[config->root_path.length] = '/';
     strncat(tmp, index_path, sizeof(char) * strlen(index_path));
-    realpath(tmp, config->index_path);
-    config->index_path_len = strlen(config->index_path);
+    realpath(tmp, config->index_path.buffer);
+    config->index_path.length = strlen(config->index_path.buffer);
 }
 
 int main(void)
 {
-    http_config_t config = { .port = HTTP_PORT, .host = "0.0.0.0" };
+    server_config_t config = { 0 };
 
+    config.port = HTTP_PORT;
+    config.host = "0.0.0.0";
+    config.http_version = HTTP_1_1;
     signal(SIGINT, handle_signal);
     prepare_config(&config, "./app", "/index.html");
     if (-1 == init_server(&server, &config))
