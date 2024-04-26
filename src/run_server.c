@@ -10,18 +10,16 @@
 #include <string.h>
 #include <sys/select.h>
 #include <sys/socket.h>
-#include "http_server.h"
+#include "server.h"
 
 static void accept_client(http_server_t *server)
 {
     struct sockaddr_in addr = { 0 };
     socklen_t socklen = sizeof(struct sockaddr_in);
-    int client = accept(server->socket, (struct sockaddr *) &addr, &socklen);
+    int socket = accept(server->socket, (struct sockaddr *) &addr, &socklen);
 
-    if (-1 != client) {
-        server->clients[client] = CLIENT_CONNECTED;
-        empty_buffer(&(server->requests[client]));
-        empty_buffer(&(server->responses[client]));
+    if (-1 != socket) {
+        server->clients[socket].connected = 1;
     }
 }
 
@@ -58,10 +56,10 @@ static void prepare_fd_sets(fd_set rdwr[2], const http_server_t *server)
     FD_ZERO(&(rdwr[1]));
     FD_SET(server->socket, &(rdwr[0]));
     for (; i < FD_SETSIZE; ++i) {
-        if (CLIENT_DISCONNECTED == server->clients[i])
+        if (0 == server->clients[i].connected)
             continue;
         FD_SET(i, &(rdwr[0]));
-        if (0 < server->responses[i].length)
+        if (0 < server->clients[i].response.raw.length)
             FD_SET(i, &(rdwr[1]));
     }
 }
@@ -76,10 +74,8 @@ int run_server(http_server_t *server)
     while (1 == server->running) {
         prepare_fd_sets(rdwr, server);
         status = select(FD_SETSIZE, &(rdwr[0]), &(rdwr[1]), NULL, &timeout);
-        if (-1 == status) {
-            server->running = 0;
+        if (-1 == status)
             return -1;
-        }
         memset(&timeout, 0, sizeof(struct timeval));
         if (0 < status) {
             recv_requests(server, &(rdwr[0]));

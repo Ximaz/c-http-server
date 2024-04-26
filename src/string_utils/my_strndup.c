@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *strndup(char const *string, size_t length)
+char *my_strndup(char const *string, size_t length)
 {
     char *block = NULL;
 

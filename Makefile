@@ -12,7 +12,7 @@ RM		:=	rm -rf
 
 CC			:=	gcc
 CPPFLAGS	:=	-Iinclude/
-CFLAGS 		:=	-Wall -Wextra -Werror -pedantic -std=gnu99 -fPIE -Wformat \
+CFLAGS 		:=	-Wall -Wextra -Werror -std=gnu89 -fPIE -Wformat		 \
 				-fno-delete-null-pointer-checks -fno-strict-overflow \
 				-fno-strict-aliasing -ftrivial-auto-var-init=zero    \
 				-Wimplicit-fallthrough -fstack-protector-strong		 \
@@ -27,6 +27,8 @@ endif
 ifeq ($(PLATFORM),aarch64)
 CFLAGS		+=	-mbranch-protection=standard
 endif
+
+CFLAGS		+= -g
 
 VALGRIND_FLAGS	:=	-s							\
 					--leak-check=full			\

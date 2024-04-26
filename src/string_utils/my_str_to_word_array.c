@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "string_utils.h"
 
 static size_t count_blocks(char const *string, char const *sep, size_t sep_len)
 {
@@ -29,7 +30,7 @@ static char *new_block(char const *string, char const *sep, size_t *len)
         return NULL;
     }
     *len = tmp - string;
-    return strndup(string, *len);
+    return my_strndup(string, *len);
 }
 
 char **my_str_to_word_array(char const *string, char const *sep)
@@ -51,7 +52,7 @@ char **my_str_to_word_array(char const *string, char const *sep)
         cursor += block_len + sep_len;
         block = new_block(&string[cursor], sep, &block_len);
     }
-    blocks[block_idx] = strndup(&string[cursor], strlen(&string[cursor]));
+    blocks[block_idx] = my_strndup(&string[cursor], strlen(&string[cursor]));
     return blocks;
 }
 

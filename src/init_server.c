@@ -6,11 +6,13 @@
 */
 
 #include <arpa/inet.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "http_server.h"
+#include "http.h"
+#include "server.h"
 
 static int bind_socket(int socket, const char *host, int port)
 {
@@ -23,22 +25,62 @@ static int bind_socket(int socket, const char *host, int port)
     return bind(socket, (const struct sockaddr *) &addr, socklen);
 }
 
-int init_server(http_server_t *server, const http_config_t *config)
+static void free_hashmap_item(void *e)
+{
+    hashmap_item_t *header = (hashmap_item_t *) e;
+
+    free(header->value);
+    free(e);
+}
+
+static void setup_clients(http_server_t *server)
+{
+    int j = 0;
+    int i = 0;
+    http_client_t *client = NULL;
+
+    for (; i < FD_SETSIZE; ++i) {
+        client = &(server->clients[i]);
+        for (j = 0; j < HASHMAP_SIZE; ++j) {
+            client->request.headers[j].destroy = free_hashmap_item;
+            client->response.headers[j].destroy = free_hashmap_item;
+        }
+        client->connected = 0;
+    }
+}
+
+static void setup_router(http_server_t *server)
+{
+    int i = 0;
+    http_method_t method = 0;
+
+    for (; method < HTTP_METHODS_LIMIT; ++method)
+        for (i = 0; i < HASHMAP_SIZE; ++i)
+            server->router[method][i].destroy = free;
+}
+
+static void setup_server(http_server_t *server, const server_config_t *config)
+{
+    memcpy(&(server->config), config, sizeof(server_config_t));
+    setup_clients(server);
+    setup_router(server);
+}
+
+int init_server(http_server_t *server, const server_config_t *config)
 {
     int reuse_sock = 1;
 
     server->socket = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (-1 == server->socket)
         return -1;
-    if (-1 == -1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR,
-        &reuse_sock, sizeof(int)) ||
+    if (-1 == setsockopt(server->socket, SOL_SOCKET, SO_REUSEADDR, &reuse_sock,
+        sizeof(int)) ||
         -1 == bind_socket(server->socket, config->host, config->port) ||
         -1 == listen(server->socket, SOMAXCONN)) {
         close(server->socket);
         server->socket = -1;
         return -1;
     }
-    memcpy(&(server->config), config, sizeof(http_config_t));
-    memset(server->clients, -1, sizeof(int) * FD_SETSIZE);
+    setup_server(server, config);
     return 0;
 }
