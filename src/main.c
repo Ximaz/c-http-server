@@ -42,6 +42,8 @@ static void setup_routes(http_server_t *server)
     router_register_route(&(server->router), HTTP_GET, "/", &get_index);
 }
 
+#ifndef CRITERION_NO_MAIN
+
 int main(void)
 {
     server_config_t config = { 0 };
@@ -59,3 +61,5 @@ int main(void)
     destroy_server(&server);
     return 0;
 }
+
+#endif /* !CRITERION_NO_MAIN */

@@ -6,7 +6,7 @@
 ##
 
 NAME	:= http_server
-SRCS	:=	$(shell find src -name '*.c')
+SRCS	:=	$(shell find libs -name '*.c') $(shell find src -name '*.c')
 OBJS	:=	$(SRCS:.c=.o)
 RM		:=	rm -rf
 
@@ -30,6 +30,10 @@ endif
 
 CFLAGS		+= -g
 
+TESTS_CFLAGS	:=	-g -Wall -Wextra -Werror
+TESTS_SRCS		:=	$(shell find tests -type f -name 'tests_*.c')
+TESTS_OBJS		:=	$(TESTS_SRCS:.c=.o)
+
 VALGRIND_FLAGS	:=	-s							\
 					--leak-check=full			\
 					--track-origins=yes			\
@@ -44,13 +48,27 @@ all:	$(NAME)
 $(NAME):	$(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $@
 
-valgrind:	$(NAME)
-	valgrind $(VALGRIND_FLAGS) ./$<
+tests/%.o:	CFLAGS = -Wall -Wextra -Werror
+tests/%.o:	tests/%.c
+	@$(CC) $(TESTS_CFLAGS) $(CPPFLAGS) -o $@ -c $<
+
+tests_run:	CFLAGS = -DCRITERION_NO_MAIN -g --coverage
+tests_run:	fclean	$(OBJS)	$(TESTS_OBJS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJS) $(TESTS_OBJS) -o unit_tests -lcriterion
+	CRITERION_NO_EARLY_EXIT=1 ./unit_tests
+	gcovr -e tests .
+
+valgrind:	tests_run
+	valgrind $(VALGRIND_FLAGS) ./unit_tests
 
 clean:
-	$(RM) $(OBJS)
+	@$(RM) $(OBJS)
+	@$(RM) $(TESTS_OBJS)
+	@$(RM) $(shell find . -type f -name '*.gcno')
+	@$(RM) $(shell find . -type f -name '*.gcda')
 
 fclean:	clean
 	$(RM) $(NAME)
+	$(RM) unit_tests
 
 re:	fclean	all

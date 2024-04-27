@@ -16,5 +16,5 @@ void router_new(http_router_t *router)
     http_method_t method = 0;
 
     for (; method < HTTP_METHODS_LIMIT; ++method)
-        (*router)[method]->destroy = free;
+        hashmap_new(&((*router)[method]), NULL);
 }

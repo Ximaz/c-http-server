@@ -234,10 +234,11 @@ void parse_http_request(const buffer_t *raw, http_request_t *output);
 
 void get_http_uri_resource(const char *path, http_response_t *resp);
 
-void make_http_header(http_header_t *header, const char *key,
-    const char *value);
+int set_http_header(http_headers_t *headers, const char *key,
+    http_header_t *header);
 
-int set_http_header(http_headers_t *headers, http_header_t *header);
+int set_raw_http_header(http_headers_t *headers, const char *key,
+    const char *value);
 
 void destroy_http_request(http_request_t *req);
 
