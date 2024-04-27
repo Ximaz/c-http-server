@@ -7,7 +7,6 @@
 
 #include <fcntl.h>
 #include <stddef.h>
-#include <stdio.h>
 #include "http.h"
 #include "server.h"
 
