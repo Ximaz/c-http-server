@@ -25,12 +25,11 @@ static int bind_socket(int socket, const char *host, int port)
     return bind(socket, (const struct sockaddr *) &addr, socklen);
 }
 
-static void free_hashmap_item(void *e)
+static void free_hashmap_header(void *e)
 {
-    hashmap_item_t *header = (hashmap_item_t *) e;
+    http_header_t *header = (http_header_t *) e;
 
-    free(header->value);
-    free(e);
+    free(header);
 }
 
 static void setup_clients(http_server_t *server)
@@ -42,28 +41,17 @@ static void setup_clients(http_server_t *server)
     for (; i < FD_SETSIZE; ++i) {
         client = &(server->clients[i]);
         for (j = 0; j < HASHMAP_SIZE; ++j) {
-            client->request.headers[j].destroy = free_hashmap_item;
-            client->response.headers[j].destroy = free_hashmap_item;
+            client->request.headers.destroy = free_hashmap_header;
+            client->response.headers.destroy = free_hashmap_header;
         }
         client->connected = 0;
     }
-}
-
-static void setup_router(http_server_t *server)
-{
-    int i = 0;
-    http_method_t method = 0;
-
-    for (; method < HTTP_METHODS_LIMIT; ++method)
-        for (i = 0; i < HASHMAP_SIZE; ++i)
-            server->router[method][i].destroy = free;
 }
 
 static void setup_server(http_server_t *server, const server_config_t *config)
 {
     memcpy(&(server->config), config, sizeof(server_config_t));
     setup_clients(server);
-    setup_router(server);
 }
 
 int init_server(http_server_t *server, const server_config_t *config)

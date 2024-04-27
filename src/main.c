@@ -15,6 +15,8 @@
 #include "routes.h"
 #include "server.h"
 
+#ifndef CRITERION_NO_MAIN
+
 static http_server_t server = { 0 };
 
 static void handle_signal(int signal)
@@ -59,3 +61,5 @@ int main(void)
     destroy_server(&server);
     return 0;
 }
+
+#endif /* !CRITERION_NO_MAIN */

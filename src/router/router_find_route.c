@@ -14,5 +14,5 @@ route_handler_t *router_find_route(const http_router_t *router,
 {
     http_routes_t *routes = (http_routes_t *) &((*router)[method]);
 
-    return hashmap_find(routes, route);
+    return hashmap_get(routes, route);
 }
