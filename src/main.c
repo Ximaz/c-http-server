@@ -15,6 +15,8 @@
 #include "routes.h"
 #include "server.h"
 
+#ifndef CRITERION_NO_MAIN
+
 static http_server_t server = { 0 };
 
 static void handle_signal(int signal)
@@ -41,8 +43,6 @@ static void setup_routes(http_server_t *server)
 {
     router_register_route(&(server->router), HTTP_GET, "/", &get_index);
 }
-
-#ifndef CRITERION_NO_MAIN
 
 int main(void)
 {
