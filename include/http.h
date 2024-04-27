@@ -41,10 +41,10 @@ typedef enum e_http_version {
 } http_version_t;
 
 UNUSED static const buffer_t HTTP_VERSIONS[HTTP_VERSIONS_LIMIT] = {
-    { "HTTP/1", 7 },
-    { "HTTP/1.1", 8 },
-    { "HTTP/2", 7 },
-    { "HTTP/3", 7 },
+    { "HTTP/1", 6 },
+    { "HTTP/1.1", 7 },
+    { "HTTP/2", 6 },
+    { "HTTP/3", 6 },
 };
 
 typedef struct s_http_header {

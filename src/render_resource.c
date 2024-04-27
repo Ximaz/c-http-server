@@ -5,6 +5,7 @@
 ** render_resource.c
 */
 
+#include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,7 @@
 static int remote_file_inclusion(const server_config_t *config,
     char const *path)
 {
-    return 0 != strncmp(path, config->root_path.buffer,
+    return 0 != strncmp(config->root_path.buffer, path,
         config->root_path.length);
 }
 
@@ -28,46 +29,68 @@ static int file_exists(const char *path)
     return -1 != stat(path, &stats);
 }
 
-UNUSED static char *secured_get_uri_full_path(const server_config_t *config,
-    const char *uri, http_status_t *http_status)
-{
-    char *full_path = NULL;
-    size_t full_path_len = 0;
-    char real_path[PATH_MAX] = { 0 };
-    char tmp[PATH_MAX] = { 0 };
-
-    strncpy(tmp, config->root_path.buffer, config->root_path.length);
-    strcat(tmp, uri);
-    realpath(tmp, real_path);
-    if (1 == remote_file_inclusion(config, tmp) || 0 == file_exists(tmp)) {
-        *http_status = HTTP_404;
-        return NULL;
-    }
-    *http_status = HTTP_200;
-    full_path_len = strlen(tmp);
-    full_path = my_strndup(tmp, full_path_len);
-    if (NULL == full_path)
-        *http_status = HTTP_500;
-    return full_path;
-}
-
-static void get_uri_full_path(const server_config_t *config,
+static int secured_get_uri_full_path(const server_config_t *config,
     const char *uri, buffer_t *output)
 {
+    size_t real_path_length = 0;
     char real_path[PATH_MAX] = { 0 };
     char tmp[PATH_MAX] = { 0 };
 
+    empty_buffer(output);
     strncpy(tmp, config->root_path.buffer, config->root_path.length);
     strcat(tmp, uri);
     realpath(tmp, real_path);
-    write_buffer(output, tmp, strlen(tmp));
+    real_path_length = strlen(real_path);
+    if (PATH_MAX < real_path_length ||
+        1 == remote_file_inclusion(config, real_path) ||
+        0 == file_exists(real_path))
+        return -1;
+    write_buffer(output, real_path, real_path_length);
+    return 0;
 }
 
-void render_resource(http_server_t *server, http_response_t *resp,
+static int get_uri_full_path(const server_config_t *config,
+    const char *uri, buffer_t *output)
+{
+    size_t real_path_length = 0;
+    char real_path[PATH_MAX] = { 0 };
+    char tmp[PATH_MAX] = { 0 };
+
+    empty_buffer(output);
+    strncpy(tmp, config->root_path.buffer, config->root_path.length);
+    strcat(tmp, uri);
+    realpath(tmp, real_path);
+    real_path_length = strlen(real_path);
+    if (PATH_MAX < real_path_length ||
+        0 == file_exists(real_path))
+        return -1;
+    write_buffer(output, real_path, real_path_length);
+    return 0;
+}
+
+int render_resource(http_server_t *server, http_response_t *resp,
     const char *path)
 {
     buffer_t full_uri = { 0 };
 
-    get_uri_full_path(&(server->config), path, &full_uri);
+    if (-1 == get_uri_full_path(&(server->config), path, &full_uri))
+        return -1;
+    resp->status = HTTP_200;
     read_file(full_uri.buffer, &(resp->content));
+    return 0;
+}
+
+int render_asset(http_server_t *server, http_response_t *resp,
+    const char *path)
+{
+    buffer_t full_uri = { 0 };
+
+    if (-1 == secured_get_uri_full_path(&(server->config), path, &full_uri))
+        return -1;
+    if (0 != strncmp(server->config.asset_path.buffer, full_uri.buffer,
+        server->config.asset_path.length))
+        return -1;
+    resp->status = HTTP_200;
+    read_file(full_uri.buffer, &(resp->content));
+    return 0;
 }

@@ -48,7 +48,7 @@ static void write_headers_list(http_response_t *resp,
     }
 }
 
-static void write_headers(http_response_t *resp)
+void write_headers(http_response_t *resp)
 {
     int i = 0;
 
@@ -61,5 +61,5 @@ void render_response(const server_config_t *config, http_response_t *resp)
     write_metadata(config, resp);
     write_headers(resp);
     write_buffer(&(resp->raw), HTTP_LINE_SEP, HTTP_LINE_SEP_LEN);
-    write_buffer(&resp->raw, resp->content.buffer, resp->content.length);
+    write_buffer(&(resp->raw), resp->content.buffer, resp->content.length);
 }

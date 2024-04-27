@@ -25,14 +25,16 @@ static void handle_signal(int signal)
 }
 
 static void prepare_config(server_config_t *config,
-    const char *root_path)
+    const char *root_path, const char *asset_path)
 {
     char tmp[PATH_MAX] = { 0 };
 
     realpath(root_path, tmp);
     write_buffer(&(config->root_path), tmp, strlen(tmp));
-    memset(tmp, 0, sizeof(char) * config->root_path.length);
     tmp[config->root_path.length] = '/';
+    strncat(tmp, asset_path, sizeof(char) * strlen(asset_path));
+    realpath(tmp, config->asset_path.buffer);
+    config->asset_path.length = strlen(config->asset_path.buffer);
 }
 
 static void setup_routes(http_server_t *server)
@@ -48,7 +50,7 @@ int main(void)
     config.host = "0.0.0.0";
     config.http_version = HTTP_2_0;
     signal(SIGINT, handle_signal);
-    prepare_config(&config, "./app");
+    prepare_config(&config, "./app", "/assets");
     if (-1 == init_server(&server, &config))
         return 84;
     setup_routes(&server);

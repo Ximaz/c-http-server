@@ -21,7 +21,7 @@ void handle_http_request(http_server_t *server, http_client_t *client,
         router_find_route(&(server->router), req->method, req->uri);
     if (NULL != handler)
         handler(server, client, req, resp);
-    else {
+    if (NULL == handler && -1 == render_asset(server, resp, req->uri)) {
         resp->status = HTTP_404;
         http_error_file_not_found(resp);
     }
