@@ -68,7 +68,7 @@ static int get_uri_full_path(const server_config_t *config,
     return 0;
 }
 
-int render_resource(http_server_t *server, http_response_t *resp,
+int render_page(http_server_t *server, http_response_t *resp,
     const char *path)
 {
     buffer_t full_uri = { 0 };

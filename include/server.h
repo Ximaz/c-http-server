@@ -67,7 +67,7 @@ void destroy_server(http_server_t *server);
 
 void read_file(const char *path, buffer_t *buffer);
 
-int render_resource(http_server_t *server, http_response_t *resp,
+int render_page(http_server_t *server, http_response_t *resp,
     const char *path);
 
 int render_asset(http_server_t *server, http_response_t *resp,
