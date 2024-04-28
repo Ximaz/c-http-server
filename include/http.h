@@ -41,10 +41,10 @@ typedef enum e_http_version {
 } http_version_t;
 
 UNUSED static const buffer_t HTTP_VERSIONS[HTTP_VERSIONS_LIMIT] = {
-    { "HTTP/1", 7 },
-    { "HTTP/1.1", 8 },
-    { "HTTP/2", 7 },
-    { "HTTP/3", 7 },
+    { "HTTP/1", 6 },
+    { "HTTP/1.1", 7 },
+    { "HTTP/2", 6 },
+    { "HTTP/3", 6 },
 };
 
 typedef struct s_http_header {
@@ -219,7 +219,6 @@ static const http_error_generator_t HTTP_ERRORS[] = {
     { -1, NULL }
 };
 
-
 int parse_http_method(const char *method, http_request_t *output);
 
 int parse_http_uri(const char *uri, http_request_t *output);
@@ -231,8 +230,6 @@ http_header_t *parse_http_header(const buffer_t *raw);
 buffer_t *get_http_header(const http_headers_t *headers, const char *key);
 
 void parse_http_request(const buffer_t *raw, http_request_t *output);
-
-void get_http_uri_resource(const char *path, http_response_t *resp);
 
 int set_http_header(http_headers_t *headers, const char *key,
     http_header_t *header);

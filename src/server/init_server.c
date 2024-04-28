@@ -34,8 +34,8 @@ static void free_hashmap_header(void *e)
 
 static void setup_clients(http_server_t *server)
 {
-    int j = 0;
-    int i = 0;
+    size_t j = 0;
+    size_t i = 0;
     http_client_t *client = NULL;
 
     for (; i < FD_SETSIZE; ++i) {

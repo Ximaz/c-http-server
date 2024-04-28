@@ -19,12 +19,11 @@
     #include "hashmap.h"
     #include "http.h"
 
-/* todo: mettre root_path et index_path en buffer_t */
 typedef struct s_http_config {
     int port;
     char const *host;
     buffer_t root_path;
-    buffer_t index_path;
+    buffer_t asset_path;
     http_version_t http_version;
 } server_config_t;
 
@@ -66,8 +65,13 @@ void close_client(http_server_t *server, int client);
 
 void destroy_server(http_server_t *server);
 
-char *get_uri_full_path(const server_config_t *config, const char *uri,
-    http_status_t *http_status);
+void read_file(const char *path, buffer_t *buffer);
+
+int render_page(http_server_t *server, http_response_t *resp,
+    const char *path);
+
+int render_asset(http_server_t *server, http_response_t *resp,
+    const char *path);
 
 void render_response(const server_config_t *config, http_response_t *resp);
 
