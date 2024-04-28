@@ -7,11 +7,10 @@
 
 #include <stddef.h>
 #include "hashmap.h"
-#include "list.h"
 
 void *hashmap_get(const hashmap_t *hashmap, const char *key)
 {
-    hashmap_entry_t *entry = hashmap_get_entry(hashmap, key);
+    const hashmap_entry_t *entry = hashmap_entry_get(hashmap, key);
 
     if (NULL == entry)
         return NULL;

@@ -9,7 +9,6 @@
 #include "buffer.h"
 #include "hashmap.h"
 #include "http.h"
-#include "list.h"
 #include "server.h"
 
 static void write_metadata(const server_config_t *config,
@@ -32,19 +31,16 @@ static void write_header(http_response_t *resp, const http_header_t *header)
 }
 
 static void write_headers_list(http_response_t *resp,
-    const list_t *headers)
+    const hashmap_entries_t *headers)
 {
-    long i = 0;
-    hashmap_entry_t *entry = NULL;
     http_header_t *header = NULL;
-    long headers_count = list_count(headers);
+    const hashmap_entry_t *entry = NULL;
 
-    for (; i < headers_count; ++i) {
-        entry = list_value_at(headers, i);
-        if (NULL == entry)
-            continue;
+    entry = headers->head;
+    while (NULL != entry) {
         header = entry->value;
         write_header(resp, header);
+        entry = entry->next;
     }
 }
 
