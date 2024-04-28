@@ -29,15 +29,25 @@ typedef struct s_hashmap_entries_t {
     hashmap_entry_t *tail;
 } hashmap_entries_t;
 
-typedef struct s_hashmap_key {
-    const char *key;
-    struct s_hashmap_key *next;
-} hashmap_key_t;
+typedef struct s_hashmap_keys {
+    const char **keys;
+    size_t count;
+} hashmap_keys_t;
 
-typedef struct s_hashmap_value {
+typedef struct s_hashmap_values {
+    void **values;
+    size_t count;
+} hashmap_values_t;
+
+typedef struct s_hashmap_item {
+    const char *key;
     void *value;
-    struct s_hashmap_value *next;
-} hashmap_value_t;
+} hashmap_item_t;
+
+typedef struct s_hashmap_items {
+    hashmap_item_t *items;
+    size_t count;
+} hashmap_items_t;
 
 typedef struct s_hashmap {
     hashmap_entries_t buckets[HASHMAP_SIZE];
@@ -57,6 +67,8 @@ const hashmap_entry_t *hashmap_entry_get(const hashmap_t *hashmap,
 
 void hashmap_entries_destroy(hashmap_entries_t *entries,
     hashmap_value_destroy_t destroy);
+
+size_t hashmap_entries_count(const hashmap_t *hashmap);
 
 /**
  * @brief Initialize the hasmap with the destroy function for entries' values.
@@ -118,5 +130,50 @@ void hashmap_delete(hashmap_t *hashmap, const char *key);
  * @param[in] hashmap
  */
 void hashmap_clear(hashmap_t *hashmap);
+
+/**
+ * @brief Return keys of the hashmap.
+ *
+ * @param[in] hashmap
+ * @return The keys stored in the hashmap on success, NULL on error.
+ */
+hashmap_keys_t *hashmap_keys(const hashmap_t *hashmap);
+
+/**
+ * @brief Releases allocated memory for keys
+ *
+ * @param[in] keys
+ */
+void hashmap_keys_destroy(hashmap_keys_t *keys);
+
+/**
+ * @brief Return values of the hashmap.
+ *
+ * @param[in] hashmap
+ * @return The values stored in the hashmap on success, NULL on error.
+ */
+hashmap_values_t *hashmap_values(const hashmap_t *hashmap);
+
+/**
+ * @brief Releases allocated memory for values
+ *
+ * @param[in] values
+ */
+void hashmap_values_destroy(hashmap_values_t *values);
+
+/**
+ * @brief Return items of the hashmap (key-value pairs).
+ *
+ * @param[in] hashmap
+ * @return The items stored in the hashmap on success, NULL on error.
+ */
+hashmap_items_t *hashmap_items(const hashmap_t *hashmap);
+
+/**
+ * @brief Releases allocated memory for items
+ *
+ * @param[in] items
+ */
+void hashmap_items_destroy(hashmap_items_t *items);
 
 #endif /* __HASHMAP_H_ */

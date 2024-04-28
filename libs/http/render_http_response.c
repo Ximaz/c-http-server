@@ -30,26 +30,16 @@ static void write_header(http_response_t *resp, const http_header_t *header)
     write_buffer(&(resp->raw), HTTP_LINE_SEP, HTTP_LINE_SEP_LEN);
 }
 
-static void write_headers_list(http_response_t *resp,
-    const hashmap_entries_t *headers)
-{
-    http_header_t *header = NULL;
-    const hashmap_entry_t *entry = NULL;
-
-    entry = headers->head;
-    while (NULL != entry) {
-        header = entry->value;
-        write_header(resp, header);
-        entry = entry->next;
-    }
-}
-
 void write_headers(http_response_t *resp)
 {
-    int i = 0;
+    size_t i = 0;
+    hashmap_values_t *values = hashmap_values(&(resp->headers));
 
-    for (; i < HASHMAP_SIZE; ++i)
-        write_headers_list(resp, &(resp->headers.buckets[i]));
+    if (NULL == values)
+        return;
+    for (; i < values->count; ++i)
+        write_header(resp, (const http_header_t *) values->values[i]);
+    hashmap_values_destroy(values);
 }
 
 void render_response(const server_config_t *config, http_response_t *resp)
