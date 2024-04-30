@@ -13,12 +13,11 @@
 
 Test(hashmap_hash, test_impl)
 {
-    size_t hash1 = 0;
-    size_t hash2 = 0;
+    hash_t hash1 = 0;
+    hash_t hash2 = 0;
     const char *string = "This is the key I want to hash";
-    size_t length = strlen(string);
 
-    hash1 = hashmap_hash(string, length);
-    hash2 = hashmap_hash(string, length);
+    hash1 = hashmap_hash(string);
+    hash2 = hashmap_hash(string);
     cr_assert(eq(ptr, (void *) hash1, (void *) hash2));
 }

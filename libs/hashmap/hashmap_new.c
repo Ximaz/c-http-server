@@ -5,19 +5,11 @@
 ** hashmap_new.c
 */
 
-#include <stdlib.h>
-#include <stddef.h>
+#include <string.h>
 #include "hashmap.h"
-#include "list.h"
 
 void hashmap_new(hashmap_t *hashmap, hashmap_value_destroy_t destroy)
 {
-    size_t i = 0;
-    list_t *bucket = NULL;
-
     hashmap->destroy = destroy;
-    for (; i < HASHMAP_SIZE; ++i) {
-        bucket = &(hashmap->buckets[i]);
-        bucket->destroy = NULL;
-    }
+    memset(&(hashmap->buckets), 0, sizeof(hashmap_entries_t) * HASHMAP_SIZE);
 }
